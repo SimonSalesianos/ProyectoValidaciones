@@ -13,11 +13,22 @@ public class MyController {
     public String endpoint() {
         return "Hello World!";
     }
-
-    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/user")
+    public String user() {
+        return "Hello User!";
+    }
+    //@PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin")
     public String admin() {
         return "Hello Admin!";
     }
 
+    @GetMapping("/admin/list")
+    public String adminList() {
+        return "One List";
+    }
+    @GetMapping("/admin/detail")
+    public String adminDetail() {
+        return "Detalle de admin";
+    }
 }

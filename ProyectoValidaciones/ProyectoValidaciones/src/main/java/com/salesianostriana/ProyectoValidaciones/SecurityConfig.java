@@ -3,11 +3,15 @@ package com.salesianostriana.ProyectoValidaciones;
 import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.List;
 
@@ -17,17 +21,17 @@ public class SecurityConfig {
 
 
     @Bean
-    UserDetailsService userDetailsManager(){
+    UserDetailsService userDetailsManager() {
 
         InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager();
 
-        UserDetails admin =  User.builder()
+        UserDetails admin = User.builder()
                 .username("admin")
                 .password("{noop}admin")
                 .roles("ADMIN")
                 .build();
 
-        UserDetails user =  User.builder()
+        UserDetails user = User.builder()
                 .username("user")
                 .password("{noop}user")
                 .roles("USER")
@@ -41,24 +45,21 @@ public class SecurityConfig {
         return userDetailsManager;
     }
 
-    @PostConstruct
-    public void init() {
-        User user = User.builder()
-                .username("user")
-                .password("{noop}password")
-                .build();
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        User admin = User.builder()
-                .username("admin")
-                .password("{noop}admin")
-                .role("ADMIN")
-                .build();
+        http.httpBasic(Customizer.withDefaults());
 
-        userRepository.saveAll(List.of(user, admin));
+        http.authorizeHttpRequests (auth -> auth
 
+                .requestMatchers("/public/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+        );
+
+
+        return http.build();
     }
 
 
 }
-
-
